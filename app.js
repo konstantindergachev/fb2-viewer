@@ -30,9 +30,19 @@ window.addEventListener('DOMContentLoaded', (ev) => {
     });
     viewer.addEventListener('click', (ev) => {
       const target = ev.target;
-      target.style.backgroundColor = 'skyblue';
-      target.style.color = 'black';
       const bookmark = target.innerText;
+      const { bookmarkText } = getFromStorage();
+
+      if (bookmark === bookmarkText) {
+        target.style.backgroundColor = '#181818';
+        target.style.color = '#a7a7a7';
+        removeFromStorage();
+        return;
+      } else {
+        target.style.backgroundColor = '#87ceeb';
+        target.style.color = '#181818';
+      }
+
       const style = {
         color: target.style.color,
         backgroundColor: target.style.backgroundColor,
@@ -59,8 +69,15 @@ window.addEventListener('DOMContentLoaded', (ev) => {
     window.scroll(0, offset);
   };
 
+  const removeFromStorage = () => {
+    localStorage.removeItem('fb2Position');
+    localStorage.removeItem('fb2BookmarkText');
+    localStorage.removeItem('fb2BookmarkStyle');
+  };
+
   const createBookmark = ({ bookmarkText, bookmarkStyle }) => {
     const viewportNodes = [...viewer.firstElementChild.getElementsByTagName('section')];
+
     viewportNodes.forEach((node) => {
       const paragraph = node.innerText.match(bookmarkText);
       if (paragraph) {
