@@ -77,17 +77,34 @@ window.addEventListener('DOMContentLoaded', (ev) => {
 
   const createBookmark = ({ bookmarkText, bookmarkStyle }) => {
     const viewportNodes = [...viewer.firstElementChild.getElementsByTagName('section')];
-
     viewportNodes.forEach((node) => {
       const paragraph = node.innerText.match(bookmarkText);
       if (paragraph) {
-        const array = [...node.childNodes].filter((childNode) => {
-          if (childNode.textContent === bookmarkText) return childNode;
-        });
-        array[0].style.backgroundColor = bookmarkStyle.backgroundColor;
-        array[0].style.color = bookmarkStyle.color;
+        const target = filterNodes(node.childNodes, bookmarkText);
+        bookMarkColorize(target, bookmarkStyle);
       }
     });
+  };
+
+  const filterNodes = (childNodes, bookmarkText) => {
+    const target = [];
+    childNodes.forEach((childNode) => {
+      if (childNode.textContent === bookmarkText) target.push(childNode);
+      else if (childNode.lastChild !== null && childNode.lastChild.children) {
+        [...childNode.lastChild.children].forEach((child) => {
+          if (child.textContent === bookmarkText) target.push(child);
+        });
+      }
+    });
+
+    return target;
+  };
+
+  const bookMarkColorize = (target, bookmarkStyle) => {
+    if (target.length) {
+      target[0].style.backgroundColor = bookmarkStyle.backgroundColor;
+      target[0].style.color = bookmarkStyle.color;
+    }
   };
 
   saveToStorage();
