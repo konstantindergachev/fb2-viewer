@@ -35,6 +35,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.menu {
+  display: flex;
+}
+
+#textFont {
+  margin-left: auto;
+}
+
 #viewer {
   width: 100%;
   min-height: 100vh;

@@ -2,6 +2,7 @@ window.addEventListener('DOMContentLoaded', (ev) => {
   const fileInput = document.getElementById('file-input');
   const viewer = document.getElementById('viewer');
   const textTitle = document.getElementById('textTitle');
+  const textFont = document.getElementById('textFont');
 
   fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
@@ -106,6 +107,11 @@ window.addEventListener('DOMContentLoaded', (ev) => {
       target[0].style.color = bookmarkStyle.color;
     }
   };
+
+  textFont.addEventListener('click', (ev) => {
+    const font = ev.target.value;
+    document.body.style.fontFamily = font;
+  });
 
   saveToStorage();
 });
