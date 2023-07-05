@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', (ev) => {
+window.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file-input');
   const viewer = document.getElementById('viewer');
   const textTitle = document.getElementById('textTitle');
@@ -12,8 +12,10 @@ window.addEventListener('DOMContentLoaded', (ev) => {
     reader.onload = (event) => {
       const content = event.target.result;
       viewer.innerHTML = content;
-      const { offset, bookmarkText, bookmarkStyle } = getFromStorage();
+      const { offset, font, bookmarkText, bookmarkStyle } = getFromStorage();
+      console.log({ offset, font, bookmarkText, bookmarkStyle });
       if (offset) autoScrollTo(offset);
+      if (font) document.body.style.fontFamily = font;
       if (bookmarkText) {
         createBookmark({ bookmarkText, bookmarkStyle });
       }
@@ -22,58 +24,39 @@ window.addEventListener('DOMContentLoaded', (ev) => {
     reader.readAsText(file);
   });
 
-  const saveToStorage = () => {
-    document.addEventListener('scroll', (ev) => {
-      if (viewer.innerText) {
-        const currentPosition = window.scrollY;
-        localStorage.setItem('fb2Position', currentPosition);
-      }
-    });
-    viewer.addEventListener('click', (ev) => {
-      const target = ev.target;
-      const bookmark = target.innerText;
-      const { bookmarkText } = getFromStorage();
-
-      if (bookmark === bookmarkText) {
-        target.style.backgroundColor = '#181818';
-        target.style.color = '#a7a7a7';
-        removeFromStorage();
-        return;
-      } else {
-        target.style.backgroundColor = '#87ceeb';
-        target.style.color = '#181818';
-      }
-
-      const style = {
-        color: target.style.color,
-        backgroundColor: target.style.backgroundColor,
-      };
-      localStorage.setItem('fb2BookmarkText', bookmark);
-      localStorage.setItem('fb2BookmarkStyle', JSON.stringify(style));
-    });
-  };
-
-  const getFromStorage = () => {
-    const savedPosition = localStorage.getItem('fb2Position');
-    const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
-    const savedBookmarkStyle = localStorage.getItem('fb2BookmarkStyle');
-    if (viewer.innerText && Number(savedPosition)) {
-      return {
-        offset: Number(savedPosition),
-        bookmarkText: savedBookmarkText,
-        bookmarkStyle: JSON.parse(savedBookmarkStyle),
-      };
+  document.addEventListener('scroll', () => {
+    if (viewer.innerText) {
+      const currentPosition = window.scrollY;
+      saveToStorage({ name: 'fb2Position', payload: currentPosition });
     }
-    return {};
-  };
+  });
+
+  viewer.addEventListener('click', (ev) => {
+    const target = ev.target;
+    const bookmark = target.innerText;
+    const { bookmarkText } = getFromStorage();
+
+    if (bookmark === bookmarkText) {
+      target.style.backgroundColor = '#181818';
+      target.style.color = '#a7a7a7';
+      removeFromStorage();
+      return;
+    } else {
+      target.style.backgroundColor = '#87ceeb';
+      target.style.color = '#181818';
+    }
+
+    const style = {
+      color: target.style.color,
+      backgroundColor: target.style.backgroundColor,
+    };
+
+    saveToStorage({ name: 'fb2BookmarkText', payload: bookmark });
+    saveToStorage({ name: 'fb2BookmarkStyle', payload: JSON.stringify(style) });
+  });
+
   const autoScrollTo = (offset) => {
     window.scroll(0, offset);
-  };
-
-  const removeFromStorage = () => {
-    localStorage.removeItem('fb2Position');
-    localStorage.removeItem('fb2BookmarkText');
-    localStorage.removeItem('fb2BookmarkStyle');
   };
 
   const createBookmark = ({ bookmarkText, bookmarkStyle }) => {
@@ -111,7 +94,32 @@ window.addEventListener('DOMContentLoaded', (ev) => {
   textFont.addEventListener('click', (ev) => {
     const font = ev.target.value;
     document.body.style.fontFamily = font;
+
+    saveToStorage({ name: 'fb2Font', payload: font });
   });
 
-  saveToStorage();
+  const saveToStorage = (props) => {
+    localStorage.setItem(props.name, props.payload);
+  };
+
+  const getFromStorage = () => {
+    const savedPosition = localStorage.getItem('fb2Position');
+    const savedFont = localStorage.getItem('fb2Font');
+    const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
+    const savedBookmarkStyle = localStorage.getItem('fb2BookmarkStyle');
+    if (savedFont || (viewer.innerText && Number(savedPosition))) {
+      return {
+        offset: Number(savedPosition),
+        font: savedFont,
+        bookmarkText: savedBookmarkText,
+        bookmarkStyle: JSON.parse(savedBookmarkStyle),
+      };
+    }
+    return {};
+  };
+  const removeFromStorage = () => {
+    localStorage.removeItem('fb2Position');
+    localStorage.removeItem('fb2BookmarkText');
+    localStorage.removeItem('fb2BookmarkStyle');
+  };
 });
