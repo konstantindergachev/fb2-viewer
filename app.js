@@ -3,6 +3,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const viewer = document.getElementById('viewer');
   const textTitle = document.getElementById('textTitle');
   const textFont = document.getElementById('textFont');
+  const textFontSize = document.getElementById('textFontSize');
 
   fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
@@ -12,10 +13,10 @@ window.addEventListener('DOMContentLoaded', () => {
     reader.onload = (event) => {
       const content = event.target.result;
       viewer.innerHTML = content;
-      const { offset, font, bookmarkText, bookmarkStyle } = getFromStorage();
-      console.log({ offset, font, bookmarkText, bookmarkStyle });
+      const { offset, font, fontSize, bookmarkText, bookmarkStyle } = getFromStorage();
       if (offset) autoScrollTo(offset);
       if (font) document.body.style.fontFamily = font;
+      if (fontSize) viewer.style.fontSize = `${fontSize}px`;
       if (bookmarkText) {
         createBookmark({ bookmarkText, bookmarkStyle });
       }
@@ -98,6 +99,13 @@ window.addEventListener('DOMContentLoaded', () => {
     saveToStorage({ name: 'fb2Font', payload: font });
   });
 
+  textFontSize.addEventListener('click', (ev) => {
+    const fontSize = ev.target.value;
+    viewer.style.fontSize = `${fontSize}px`;
+
+    saveToStorage({ name: 'fb2FontSize', payload: fontSize });
+  });
+
   const saveToStorage = (props) => {
     localStorage.setItem(props.name, props.payload);
   };
@@ -105,12 +113,14 @@ window.addEventListener('DOMContentLoaded', () => {
   const getFromStorage = () => {
     const savedPosition = localStorage.getItem('fb2Position');
     const savedFont = localStorage.getItem('fb2Font');
+    const savedFontSize = localStorage.getItem('fb2FontSize');
     const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
     const savedBookmarkStyle = localStorage.getItem('fb2BookmarkStyle');
-    if (savedFont || (viewer.innerText && Number(savedPosition))) {
+    if (savedFont || savedFontSize || (viewer.innerText && Number(savedPosition))) {
       return {
         offset: Number(savedPosition),
         font: savedFont,
+        fontSize: savedFontSize,
         bookmarkText: savedBookmarkText,
         bookmarkStyle: JSON.parse(savedBookmarkStyle),
       };

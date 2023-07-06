@@ -39,7 +39,7 @@ body {
   display: flex;
 }
 
-#textFont {
+.settings {
   margin-left: auto;
 }
 
