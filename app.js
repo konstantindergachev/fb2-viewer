@@ -4,6 +4,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const textTitle = document.getElementById('textTitle');
   const textFont = document.getElementById('textFont');
   const textFontSize = document.getElementById('textFontSize');
+  const theme = document.getElementById('theme');
 
   fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
@@ -13,10 +14,11 @@ window.addEventListener('DOMContentLoaded', () => {
     reader.onload = (event) => {
       const content = event.target.result;
       viewer.innerHTML = content;
-      const { offset, font, fontSize, bookmarkText, bookmarkStyle } = getFromStorage();
+      const { offset, font, fontSize, theme, bookmarkText, bookmarkStyle } = getFromStorage();
       if (offset) autoScrollTo(offset);
-      if (font) document.body.style.fontFamily = font;
+      if (font) viewer.style.fontFamily = font;
       if (fontSize) viewer.style.fontSize = `${fontSize}px`;
+      if (theme) setupTheme(theme);
       if (bookmarkText) {
         createBookmark({ bookmarkText, bookmarkStyle });
       }
@@ -94,7 +96,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   textFont.addEventListener('click', (ev) => {
     const font = ev.target.value;
-    document.body.style.fontFamily = font;
+    viewer.style.fontFamily = font;
 
     saveToStorage({ name: 'fb2Font', payload: font });
   });
@@ -106,6 +108,22 @@ window.addEventListener('DOMContentLoaded', () => {
     saveToStorage({ name: 'fb2FontSize', payload: fontSize });
   });
 
+  theme.addEventListener('click', (ev) => {
+    const theme = ev.target.value;
+    setupTheme(theme);
+    saveToStorage({ name: 'fb2Theme', payload: theme });
+  });
+
+  const setupTheme = (theme) => {
+    if (theme === 'light') {
+      viewer.style.backgroundColor = '#a7a7a7';
+      viewer.style.color = '#181818';
+    } else if (theme === 'dark') {
+      viewer.style.backgroundColor = '#181818';
+      viewer.style.color = '#a7a7a7';
+    }
+  };
+
   const saveToStorage = (props) => {
     localStorage.setItem(props.name, props.payload);
   };
@@ -114,13 +132,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedPosition = localStorage.getItem('fb2Position');
     const savedFont = localStorage.getItem('fb2Font');
     const savedFontSize = localStorage.getItem('fb2FontSize');
+    const savedTheme = localStorage.getItem('fb2Theme');
     const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
     const savedBookmarkStyle = localStorage.getItem('fb2BookmarkStyle');
-    if (savedFont || savedFontSize || (viewer.innerText && Number(savedPosition))) {
+    if (savedFont || savedFontSize || savedTheme || (viewer.innerText && Number(savedPosition))) {
       return {
         offset: Number(savedPosition),
         font: savedFont,
         fontSize: savedFontSize,
+        theme: savedTheme,
         bookmarkText: savedBookmarkText,
         bookmarkStyle: JSON.parse(savedBookmarkStyle),
       };

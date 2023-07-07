@@ -35,11 +35,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.menu {
+header {
+  background-color: var(--white);
   display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .settings {
+  align-self: flex-end;
   margin-left: auto;
 }
 
@@ -61,6 +67,14 @@ body {
   display: inline;
   font-weight: 700;
   font-size: 12px;
+  line-height: initial;
   color: var(--black);
   text-transform: uppercase;
+}
+
+#theme option {
+  text-align: center;
+}
+#theme option:last-child {
+  font-size: 18px;
 }
