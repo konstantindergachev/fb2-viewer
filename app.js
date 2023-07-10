@@ -152,4 +152,34 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('fb2BookmarkText');
     localStorage.removeItem('fb2BookmarkStyle');
   };
+
+  const settingsFromStorage = () => {
+    const { font, fontSize, theme: savedTheme } = getFromStorage();
+    if (font) {
+      [...textFont.options].forEach((option) => {
+        if (option.value === font) {
+          option.selected = true;
+          viewer.style.fontFamily = font;
+        }
+      });
+    }
+    if (fontSize) {
+      [...textFontSize.options].forEach((option) => {
+        if (option.value === fontSize) {
+          option.selected = true;
+          viewer.style.fontSize = `${fontSize}px`;
+        }
+      });
+    }
+    if (savedTheme) {
+      [...theme.options].forEach((option) => {
+        if (option.value === savedTheme) {
+          option.selected = true;
+          setupTheme(savedTheme);
+        }
+      });
+    }
+  };
+
+  settingsFromStorage();
 });
