@@ -36,26 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   viewer.addEventListener('click', (ev) => {
     const target = ev.target;
-    const bookmark = target.innerText;
-    const { bookmarkText } = getFromStorage();
-
-    if (bookmark === bookmarkText) {
-      target.style.backgroundColor = '#181818';
-      target.style.color = '#a7a7a7';
-      removeFromStorage();
-      return;
-    } else {
-      target.style.backgroundColor = '#87ceeb';
-      target.style.color = '#181818';
-    }
-
-    const style = {
-      color: target.style.color,
-      backgroundColor: target.style.backgroundColor,
-    };
-
-    saveToStorage({ name: 'fb2BookmarkText', payload: bookmark });
-    saveToStorage({ name: 'fb2BookmarkStyle', payload: JSON.stringify(style) });
+    setupBookmarkTheme(target);
   });
 
   const autoScrollTo = (offset) => {
@@ -121,6 +102,26 @@ window.addEventListener('DOMContentLoaded', () => {
     } else if (theme === 'dark') {
       viewer.style.backgroundColor = '#181818';
       viewer.style.color = '#a7a7a7';
+    }
+  };
+
+  const setupBookmarkTheme = (target) => {
+    const { bookmarkText } = getFromStorage();
+    if (bookmarkText === target.innerText) {
+      target.style.backgroundColor = '#181818';
+      target.style.color = '#a7a7a7';
+      removeFromStorage();
+    } else {
+      target.style.backgroundColor = '#87ceeb';
+      target.style.color = '#181818';
+
+      const style = {
+        backgroundColor: target.style.backgroundColor,
+        color: target.style.color,
+      };
+
+      saveToStorage({ name: 'fb2BookmarkText', payload: target.innerText });
+      saveToStorage({ name: 'fb2BookmarkStyle', payload: JSON.stringify(style) });
     }
   };
 
