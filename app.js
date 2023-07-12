@@ -22,6 +22,9 @@ window.addEventListener('DOMContentLoaded', () => {
       if (bookmarkText) {
         createBookmark({ bookmarkText, bookmarkStyle });
       }
+
+      const imageNodes = [...viewer.firstElementChild.getElementsByTagName('img')];
+      createImage(imageNodes);
     };
 
     reader.readAsText(file);
@@ -36,7 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   viewer.addEventListener('click', (ev) => {
     const target = ev.target;
-    setupBookmarkTheme(target);
+    setupBookmarkStyle(target);
   });
 
   const autoScrollTo = (offset) => {
@@ -66,6 +69,18 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     return target;
+  };
+
+  const createImage = (imageNodes) => {
+    imageNodes.forEach((node, index) => {
+      const base64 = document.getElementById(node.attributes[0].nodeValue.split('#')[1]).innerText;
+      const alt = node.attributes[0].nodeValue.split('#')[1].split('.')[0];
+      node.setAttribute('src', `data:image/png;base64, ${base64}`);
+      node.setAttribute('alt', alt);
+      node.removeAttribute('l:href');
+
+      setupImageStyle(node, index);
+    });
   };
 
   const bookMarkColorize = (target, bookmarkStyle) => {
@@ -105,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const setupBookmarkTheme = (target) => {
+  const setupBookmarkStyle = (target) => {
     const { bookmarkText } = getFromStorage();
     if (bookmarkText === target.innerText) {
       target.style.backgroundColor = '#181818';
@@ -122,6 +137,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
       saveToStorage({ name: 'fb2BookmarkText', payload: target.innerText });
       saveToStorage({ name: 'fb2BookmarkStyle', payload: JSON.stringify(style) });
+    }
+  };
+
+  const setupImageStyle = (node, index) => {
+    node.style.width = '300px';
+    node.style.padding = '10px';
+    if (index % 2 === 0) {
+      node.style.float = 'left';
+    } else {
+      node.style.float = 'right';
     }
   };
 
