@@ -11,6 +11,9 @@ window.addEventListener('DOMContentLoaded', () => {
     textTitle.innerText = file.name.split('.fb2')[0];
 
     const reader = new FileReader();
+
+    createLoader();
+
     reader.onload = (event) => {
       const content = event.target.result;
       viewer.innerHTML = content;
@@ -208,4 +211,10 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   settingsFromStorage();
+
+  const createLoader = () => {
+    viewer.appendChild(document.createElement('p'));
+    viewer.firstElementChild.classList.add('loader');
+    viewer.firstElementChild.innerText = 'ФАЙЛ ЗАГРУЖАЕТСЯ';
+  };
 });
