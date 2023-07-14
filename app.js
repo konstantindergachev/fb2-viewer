@@ -6,6 +6,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const textFontSize = document.getElementById('textFontSize');
   const theme = document.getElementById('theme');
 
+  const LOADER_TEXT = 'Файл загружается';
+
   fileInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     textTitle.innerText = file.name.split('.fb2')[0];
@@ -88,8 +90,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const bookMarkColorize = (target, bookmarkStyle) => {
     if (target.length) {
-      target[0].style.backgroundColor = bookmarkStyle.backgroundColor;
-      target[0].style.color = bookmarkStyle.color;
+      target[0].classList.add(bookmarkStyle);
     }
   };
 
@@ -115,42 +116,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const setupTheme = (theme) => {
     if (theme === 'light') {
-      viewer.style.backgroundColor = '#a7a7a7';
-      viewer.style.color = '#181818';
+      viewer.classList.remove('dark');
+      viewer.classList.add('light');
     } else if (theme === 'dark') {
-      viewer.style.backgroundColor = '#181818';
-      viewer.style.color = '#a7a7a7';
+      viewer.classList.remove('light');
+      viewer.classList.add('dark');
     }
   };
 
   const setupBookmarkStyle = (target) => {
     const { bookmarkText } = getFromStorage();
+    const BOOKMARK_HTML_CLASS = 'bookmark';
     if (bookmarkText === target.innerText) {
-      target.style.backgroundColor = '#181818';
-      target.style.color = '#a7a7a7';
+      target.classList.remove(BOOKMARK_HTML_CLASS);
+      target.classList.add('dark');
       removeFromStorage();
     } else {
-      target.style.backgroundColor = '#87ceeb';
-      target.style.color = '#181818';
-
-      const style = {
-        backgroundColor: target.style.backgroundColor,
-        color: target.style.color,
-      };
+      target.classList.remove('dark');
+      target.classList.add(BOOKMARK_HTML_CLASS);
 
       saveToStorage({ name: 'fb2BookmarkText', payload: target.innerText });
-      saveToStorage({ name: 'fb2BookmarkStyle', payload: JSON.stringify(style) });
+      saveToStorage({ name: 'fb2BookmarkHTMLClass', payload: BOOKMARK_HTML_CLASS });
     }
   };
 
   const setupImageStyle = (node, index) => {
-    node.style.width = '300px';
-    node.style.padding = '10px';
-    if (index % 2 === 0) {
-      node.style.float = 'left';
-    } else {
-      node.style.float = 'right';
-    }
+    node.classList.add('image');
+    if (index % 2 === 0) node.style.float = 'left';
+    else node.style.float = 'right';
   };
 
   const saveToStorage = (props) => {
@@ -163,7 +156,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedFontSize = localStorage.getItem('fb2FontSize');
     const savedTheme = localStorage.getItem('fb2Theme');
     const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
-    const savedBookmarkStyle = localStorage.getItem('fb2BookmarkStyle');
+    const savedBookmarkStyle = localStorage.getItem('fb2BookmarkHTMLClass');
     if (savedFont || savedFontSize || savedTheme || (viewer.innerText && Number(savedPosition))) {
       return {
         offset: Number(savedPosition),
@@ -171,7 +164,7 @@ window.addEventListener('DOMContentLoaded', () => {
         fontSize: savedFontSize,
         theme: savedTheme,
         bookmarkText: savedBookmarkText,
-        bookmarkStyle: JSON.parse(savedBookmarkStyle),
+        bookmarkStyle: savedBookmarkStyle,
       };
     }
     return {};
@@ -179,7 +172,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const removeFromStorage = () => {
     localStorage.removeItem('fb2Position');
     localStorage.removeItem('fb2BookmarkText');
-    localStorage.removeItem('fb2BookmarkStyle');
+    localStorage.removeItem('fb2BookmarkHTMLClass');
   };
 
   const settingsFromStorage = () => {
@@ -215,6 +208,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const createLoader = () => {
     viewer.appendChild(document.createElement('p'));
     viewer.firstElementChild.classList.add('loader');
-    viewer.firstElementChild.innerText = 'ФАЙЛ ЗАГРУЖАЕТСЯ';
+    viewer.firstElementChild.innerText = LOADER_TEXT;
   };
 });
