@@ -116,11 +116,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const setupTheme = (theme) => {
     if (theme === 'light') {
-      viewer.classList.remove('dark');
-      viewer.classList.add('light');
+      document.body.classList.remove('dark');
+      document.body.classList.add('light');
     } else if (theme === 'dark') {
-      viewer.classList.remove('light');
-      viewer.classList.add('dark');
+      document.body.classList.remove('light');
+      document.body.classList.add('dark');
     }
   };
 
