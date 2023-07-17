@@ -38,6 +38,9 @@ body {
 }
 
 header {
+  background-color: inherit;
+  border: var(--borderLight);
+  box-shadow: var(--shadowLight);
   display: flex;
   align-items: center;
   position: sticky;
@@ -96,6 +99,7 @@ header {
   font-size: 12px;
   line-height: initial;
   text-transform: uppercase;
+  margin: auto;
 }
 
 #theme option {
