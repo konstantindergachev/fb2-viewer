@@ -19,13 +19,13 @@ window.addEventListener('DOMContentLoaded', () => {
     reader.onload = (event) => {
       const content = event.target.result;
       viewer.innerHTML = content;
-      const { offset, font, fontSize, theme, bookmarkText, bookmarkStyle } = getFromStorage();
+      const { offset, font, fontSize, theme, bookmarkText, bookmarkHTMLClass } = getFromStorage();
       if (offset) autoScrollTo(offset);
       if (font) viewer.style.fontFamily = font;
       if (fontSize) viewer.style.fontSize = `${fontSize}px`;
       if (theme) setupTheme(theme);
       if (bookmarkText) {
-        createBookmark({ bookmarkText, bookmarkStyle });
+        createBookmark({ bookmarkText, bookmarkHTMLClass });
       }
 
       const imageNodes = [...viewer.firstElementChild.getElementsByTagName('img')];
@@ -35,11 +35,13 @@ window.addEventListener('DOMContentLoaded', () => {
     reader.readAsText(file);
   });
 
+  const autoScrollTo = (offset) => {
+    window.scrollTo({ left: 0, top: offset, behavior: 'smooth' });
+  };
+
   document.addEventListener('scroll', () => {
-    if (viewer.innerText) {
-      const currentPosition = window.scrollY;
-      saveToStorage({ name: 'fb2Position', payload: currentPosition });
-    }
+    const currentPosition = window.scrollY;
+    saveToStorage({ name: 'fb2Position', payload: currentPosition });
   });
 
   viewer.addEventListener('click', (ev) => {
@@ -47,33 +49,25 @@ window.addEventListener('DOMContentLoaded', () => {
     setupBookmarkStyle(target);
   });
 
-  const autoScrollTo = (offset) => {
-    window.scroll(0, offset);
-  };
-
-  const createBookmark = ({ bookmarkText, bookmarkStyle }) => {
-    const viewportNodes = [...viewer.firstElementChild.getElementsByTagName('section')];
-    viewportNodes.forEach((node) => {
-      const paragraph = node.innerText.match(bookmarkText);
-      if (paragraph) {
-        const target = filterNodes(node.childNodes, bookmarkText);
-        bookMarkColorize(target, bookmarkStyle);
-      }
-    });
-  };
-
-  const filterNodes = (childNodes, bookmarkText) => {
-    const target = [];
-    childNodes.forEach((childNode) => {
-      if (childNode.textContent === bookmarkText) target.push(childNode);
-      else if (childNode.lastChild !== null && childNode.lastChild.children) {
-        [...childNode.lastChild.children].forEach((child) => {
-          if (child.textContent === bookmarkText) target.push(child);
+  let target = null;
+  const findTargetTag = (parentNode, text) => {
+    if (parentNode && parentNode.textContent.trim() === text) {
+      target = parentNode;
+      return target;
+    } else {
+      if (parentNode && parentNode.hasChildNodes()) {
+        [...parentNode.children].forEach((child) => {
+          return findTargetTag(child, text);
         });
       }
-    });
+      return target;
+    }
+  };
 
-    return target;
+  const createBookmark = ({ bookmarkText, bookmarkHTMLClass }) => {
+    const parentNode = viewer.firstElementChild;
+    const bookmark = findTargetTag(parentNode, bookmarkText);
+    if (bookmark) bookmarkColorize(bookmark, bookmarkHTMLClass);
   };
 
   const createImage = (imageNodes) => {
@@ -88,10 +82,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const bookMarkColorize = (target, bookmarkStyle) => {
-    if (target.length) {
-      target[0].classList.add(bookmarkStyle);
-    }
+  const bookmarkColorize = (target, bookmarkHTMLClass) => {
+    target.classList.add(bookmarkHTMLClass);
   };
 
   textFont.addEventListener('click', (ev) => {
@@ -156,15 +148,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedFontSize = localStorage.getItem('fb2FontSize');
     const savedTheme = localStorage.getItem('fb2Theme');
     const savedBookmarkText = localStorage.getItem('fb2BookmarkText');
-    const savedBookmarkStyle = localStorage.getItem('fb2BookmarkHTMLClass');
-    if (savedFont || savedFontSize || savedTheme || (viewer.innerText && Number(savedPosition))) {
+    const savedBookmarkHTMLClass = localStorage.getItem('fb2BookmarkHTMLClass');
+
+    if (viewer.innerText) {
       return {
         offset: Number(savedPosition),
         font: savedFont,
         fontSize: savedFontSize,
         theme: savedTheme,
         bookmarkText: savedBookmarkText,
-        bookmarkStyle: savedBookmarkStyle,
+        bookmarkHTMLClass: savedBookmarkHTMLClass,
       };
     }
     return {};
